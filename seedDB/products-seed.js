@@ -3,12 +3,12 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const Product = require("../models/product");
 const Category = require("../models/category");
 const mongoose = require("mongoose");
-const faker = require("faker");
+const { Faker } = require("@faker-js/faker");
 const connectDB = require("./../config/db");
 connectDB();
 
 async function seedDB() {
-  faker.seed(0);
+  const faker = new Faker({ locale: "en" });
 
   //----------------------Backpacks
   const backpacks_titles = [
@@ -201,7 +201,7 @@ async function seedDB() {
           title: titlesArr[i],
           imagePath: imgsArr[i],
           description: faker.lorem.paragraph(),
-          price: faker.random.number({ min: 10, max: 50 }),
+          price: faker.datatype.number({ min: 10, max: 50 }),
           manufacturer: faker.company.companyName(0),
           available: true,
           category: categ._id,

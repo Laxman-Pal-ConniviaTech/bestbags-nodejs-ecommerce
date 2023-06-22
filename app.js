@@ -9,7 +9,7 @@ const session = require("express-session");
 const passport = require("passport");
 const flash = require("connect-flash");
 const Category = require("./models/category");
-var MongoStore = require("connect-mongo")(session);
+var MongoStore = require("connect-mongo");
 const connectDB = require("./config/db");
 
 const app = express();
@@ -25,6 +25,14 @@ app.set("view engine", "ejs");
 const adminRouter = require("./routes/admin");
 app.use("/admin", adminRouter);
 
+const sessionStore = MongoStore.create({
+  mongoUrl: process.env.MONGO_URI ,
+  mongoOptions: {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+});
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -33,11 +41,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: new MongoStore({
-      mongooseConnection: mongoose.connection,
-    }),
+    resave: true,
+    saveUninitialized: true,
+    store: sessionStore,
     //session expires after 3 hours
     cookie: { maxAge: 60 * 1000 * 60 * 3 },
   })
@@ -107,7 +113,7 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 5000;
 app.set("port", port);
 app.listen(port, () => {
   console.log("Server running at port " + port);
